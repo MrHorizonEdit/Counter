@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuenta regresiva — 8 de junio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #0f0f1a;
+    }
+
+    /* ── Fondo con imágenes ── */
+    .slide {
+      position: fixed;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.4s ease-in-out;
+      z-index: 0;
+    }
+
+    .slide.active {
+      opacity: 0.3;
+    }
+
+    /* ── Capa oscura sobre las imágenes ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.50);
+      z-index: 1;
+    }
+
+    /* ── Contenedor principal ── */
+    .wrapper {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    /* ── Texto de encabezado ── */
+    .title {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      color: rgba(255, 255, 255, 0.65);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .title-2 {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      color: rgba(255, 255, 255, 0.65);
+      text-transform: uppercase;
+      margin-top: 30px;
+    }
+
+    /* ── Unidades del contador ── */
+    .units {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 140px;
+    }
+
+    .num {
+      font-size: 110px;
+      font-weight: 300;
+      color: #ffffff;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -4px;
+      text-shadow: 0 2px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .label {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      color: rgba(255, 255, 255, 0.55);
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    .sep {
+      font-size: 90px;
+      font-weight: 200;
+      color: rgba(255, 255, 255, 0.25);
+      line-height: 1;
+      margin-top: 4px;
+      user-select: none;
+    }
+
+    /* ── Fecha destino ── */
+    .date-label {
+      margin-top: 10px;
+      font-size: 10px;
+      letter-spacing: 0.10em;
+      color: rgba(255, 255, 255, 0.40);
+    }
+
+    /* ── Mensaje cuando ya llegó la fecha ── */
+    .arrived {
+      font-size: 48px;
+      font-weight: 300;
+      color: #fff;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .num {
+        font-size: 64px;
+        letter-spacing: -2px;
+      }
+
+      .unit {
+        min-width: 72px;
+      }
+
+      .sep {
+        font-size: 54px;
+      }
+
+      .label {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .num {
+        font-size: 46px;
+      }
+
+      .unit {
+        min-width: 52px;
+      }
+
+      .sep {
+        font-size: 40px;
+      }
+
+      .units {
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Las diapositivas de fondo se crean con JS -->
+  <div class="overlay"></div>
+
+  <div class="wrapper">
+    <p class="title">Faltan</p>
+
+    <div class="units" id="units">
+      <div class="unit">
+        <span class="num" id="days">00</span>
+        <span class="label">Días</span>
+      </div>
+      <div class="sep">.</div>
+      <div class="unit">
+        <span class="num" id="hours">00</span>
+        <span class="label">Horas</span>
+      </div>
+      <div class="sep">.</div>
+      <div class="unit">
+        <span class="num" id="mins">00</span>
+        <span class="label">Minutos</span>
+      </div>
+      <div class="sep">.</div>
+      <div class="unit">
+        <span class="num" id="secs">00</span>
+        <span class="label">Segundos</span>
+      </div>
+    </div>
+
+    <p class="title-2">PARA VERNOS ❤️🎉</p>
+    <p class="date-label">(SI DIOS LO PERMITE)</p>
+  </div>
+
+  <script>
+    /* ───────────────────────────────────────────
+       CONFIGURACIÓN — edita aquí lo que necesites
+    ─────────────────────────────────────────── */
+
+    // Fecha destino (año, mes-1, día, hora, minuto, segundo)
+    const TARGET = new Date(2026, 5, 6, 0, 0, 0);
+
+    // Carpeta donde están las imágenes
+    const IMG_FOLDER = 'img/';
+
+    // Lista de imágenes de esa carpeta (agrega o quita los que tengas)
+    const IMAGES = [
+      '001.webp',
+      '002.webp',
+      '003.webp',
+      '004.webp',
+      '005.webp',
+      '006.webp',
+      '007.webp',
+      '008.webp',
+      '009.webp',
+      '010.webp',
+      '011.webp',
+      '012.webp',
+      '013.webp',
+      '014.webp',
+      '015.webp',
+    ];
+
+    // Segundos que se muestra cada imagen antes de cambiar
+    const SLIDE_DURATION = 10; // segundos
+
+    /* ─────────────────────────────────────────── */
+
+
+    // ── Crear slides de fondo ──
+    const body = document.body;
+    const slides = IMAGES.map((img, i) => {
+      const div = document.createElement('div');
+      div.className = 'slide' + (i === 0 ? ' active' : '');
+      div.style.backgroundImage = `url('${IMG_FOLDER}${img}')`;
+      body.insertBefore(div, body.firstChild);
+      return div;
+    });
+
+    let current = 0;
+    if (slides.length > 1) {
+      setInterval(() => {
+        slides[current].classList.remove('active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+      }, SLIDE_DURATION * 1000);
+    }
+
+
+    // ── Contador ──
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      const now = new Date();
+      let diff = TARGET - now;
+
+      if (diff <= 0) {
+        document.querySelector('.title').textContent = '¡Ya llegó el día!';
+        document.getElementById('units').innerHTML =
+          '<p class="arrived">🎉 6 de junio 🎉</p>';
+        return;
+      }
+
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+
+      document.getElementById('days').textContent = pad(days);
+      document.getElementById('hours').textContent = pad(hours);
+      document.getElementById('mins').textContent = pad(mins);
+      document.getElementById('secs').textContent = pad(secs);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+
+</html>
